@@ -6,9 +6,15 @@ on:
 
 jobs:
   build:
-    name: deploy to docker 
+    name: Deploy to Docker
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Build the Docker image
+    - name: Build the Docker image with date tag
       run: docker build . --file Dockerfile --tag nginx-reverseproxy-letsencrypt:$(date +%s)
+    - name: Build the Docker image with latest tag
+      run: docker build . --file Dockerfile --tag nginx-reverseproxy-letsencrypt:latest
+    - name: Push the image with date tag
+      run: docker push bh42/nginx-reverseproxy-letsencrypt:$(date +%s)
+    - name: Push the image with latest tag
+      run: docker push bh42/nginx-reverseproxy-letsencrypt:latest
