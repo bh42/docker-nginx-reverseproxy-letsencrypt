@@ -1,0 +1,14 @@
+name: Docker Image CI
+
+on:
+  schedule:
+  - cron: "0 2 * * *"
+
+jobs:
+  build:
+    name: deploy to docker 
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag nginx-reverseproxy-letsencrypt:$(date +%s)
