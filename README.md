@@ -2,8 +2,8 @@
 
 ## What is it?
 
-This is a Docker container which embeds an Nginx as reverse-proxy, linked with Let's Encrypt (using [https://acme.sh](acme.sh))
-for SSL/TLS certificates.
+This repository contains a Docker container which embeds an Nginx as reverse-proxy, linked with Let's Encrypt (using [https://acme.sh](acme.sh)) for SSL/TLS certificates.
+You can find it on Docker Hub: [bh42/nginx-reverseproxy-letsencrypt](https://hub.docker.com/r/bh42/nginx-reverseproxy-letsencrypt)
 The Nginx configuration is purposedly user-defined, so you can set it just the way you want.
 However, you can find an example below.
 
