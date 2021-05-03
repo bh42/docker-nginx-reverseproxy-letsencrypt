@@ -28,7 +28,7 @@ Then, [https://acme.sh](acme.sh) is used to requested LE-signed certificates, wh
 
 Two volumes are used :
 * `/certs`: all the certificates will be stored here (including dhparam.pem). You do not need to put anything by yourself, the container will do it itself.
-* `/nginx`: place your Nginx configuration file(s) here. An `nginx.conf` is required, the rest is up to you.
+* `/conf`: place your Nginx configuration file(s) here. An `nginx.conf` is required, the rest is up to you.
 
 #### Environment variables
 
