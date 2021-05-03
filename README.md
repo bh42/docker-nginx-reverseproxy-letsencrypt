@@ -46,7 +46,7 @@ Here is an example with two domains:
 docker run \
   -p 80:80 \
   -p 443:443 \
-  -v /home/user/my_nginx_conf:/nginx:ro \
+  -v /home/user/my_nginx_conf:/conf:ro \
   -v /home/user/my_certs:/certs \
   -e KEYLENGTH=ec-521 \
   -e DHPARAM=4096 \
