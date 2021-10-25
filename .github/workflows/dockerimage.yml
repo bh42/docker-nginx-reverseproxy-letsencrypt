@@ -30,4 +30,4 @@ jobs:
         push: true
         tags: |
           bh42/nginx-reverseproxy-letsencrypt:latest
-          bh42/nginx-reverseproxy-letsencrypt:$(date +%s)
+          bh42/nginx-reverseproxy-letsencrypt:${{ steps.date.outputs.date }}
