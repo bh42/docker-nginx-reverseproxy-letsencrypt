@@ -1,20 +1,33 @@
 name: Docker Image CI
 
 on:
+  workflow_dispatch:
+
+  push:
+    branches: master
+
   schedule:
-  - cron: "0 2 * * *"
+    - cron: "0 2 1 * *"
 
 jobs:
   build:
     name: Deploy to Docker
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build the Docker image with date tag
-      run: docker build . --file Dockerfile --tag nginx-reverseproxy-letsencrypt:$(date +%s)
-    - name: Build the Docker image with latest tag
-      run: docker build . --file Dockerfile --tag nginx-reverseproxy-letsencrypt:latest
-    - name: Push the image with date tag
-      run: docker push bh42/nginx-reverseproxy-letsencrypt:$(date +%s)
-    - name: Push the image with latest tag
-      run: docker push bh42/nginx-reverseproxy-letsencrypt:latest
+    - name: Git checkout
+      uses: actions/checkout@v2
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: |
+          bh42/nginx-reverseproxy-letsencrypt:latest
+          bh42/nginx-reverseproxy-letsencrypt:$(date +%s)
