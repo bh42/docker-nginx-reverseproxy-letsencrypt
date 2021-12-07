@@ -72,7 +72,7 @@ fi
 /usr/sbin/nginx
 
 if [ -n "$EMAIL" ]; then
-  acme.sh  --register-account  -m $EMAIL --server zerossl
+  /root/.acme.sh/acme.sh  --register-account  -m $EMAIL --server zerossl
 fi
 
 # Request and install a Let's Encrypt certificate for each host
