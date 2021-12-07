@@ -35,6 +35,7 @@ Two volumes are used :
 The following variables can be set:
 * `DRYRUN`: set it to whatever value to use the staging Let's Encrypt environment during your tests.
 * `KEYLENGTH`: defines the key length of your Let's Encrypt certificates (1024, 2048, 4096, ec-256, ec-384, ec-521, etc). Default is set to 4096.
+* `EMAIL`: e-mail address used to register with ZeroSSL ([https://github.com/acmesh-official/acme.sh/wiki/ZeroSSL.com-CA](acme.sh wiki))
 * `DHPARAM`: defines the Diffie-Hellman parameters key length. Default is set to 2048. *Be aware that it can take much time, way more than just a couple minutes.*
 * `SERVICE_HOST_x`: the domain you want certificates for. Set one per domain: `SERVICE_HOST_1`, `SERVICE_HOST_2`, etc.
 * `SERVICE_SUBJ_x`: the self-signed certificate subject of `SERVICE_HOST_x`. The expected format is the following: `/C=Country code/ST=State/L=City/O=Company/OU=Organization/CN=your.domain.tld`. It's not really useful, but still, it's there. Use `SERVICE_SUBJ_1` for `SERVICE_HOST_1`, etc.
@@ -49,6 +50,7 @@ docker run \
   -v /home/user/my_nginx_conf:/conf:ro \
   -v /home/user/my_certs:/certs \
   -e KEYLENGTH=ec-521 \
+  -e EMAIL=johndoe@gmail.com \
   -e DHPARAM=4096 \
   -e SERVICE_HOST_1=www.mydomain.com \
   -e SERVICE_HOST_2=subdomain.mydomain.com \
@@ -66,6 +68,7 @@ services:
     image: bh42/nginx-reverseproxy-letsencrypt:latest
     environment:
       - KEYLENGTH=ec-521
+      - EMAIL=johndoe@gmail.com
       - DHPARAM=4096
       - SERVICE_HOST_1=www.mydomain.com
       - SERVICE_HOST_2=subdomain.mydomain.com
