@@ -71,6 +71,10 @@ fi
 # Starting Nginx in daemon mode
 /usr/sbin/nginx
 
+if [ -n "$EMAIL" ]; then
+  acme.sh  --register-account  -m $EMAIL --server zerossl
+fi
+
 # Request and install a Let's Encrypt certificate for each host
 i="1"
 while : ; do
