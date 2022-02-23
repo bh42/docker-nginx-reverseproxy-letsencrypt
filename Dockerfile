@@ -16,6 +16,8 @@ RUN mkdir -vp /var/www/html/.well-known/acme-challenge/
 
 COPY entrypoint.sh /
 
+COPY service.conf.template /tmp
+
 RUN chmod +x /entrypoint.sh
 
 RUN rm -rf /etc/nginx/conf.d && ln -s /conf /etc/nginx/conf.d

@@ -1,0 +1,30 @@
+server {
+    listen 443 ssl;
+    server_name ${DOMAIN};
+    server_tokens off;
+    ssl_certificate /certs/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /certs/${DOMAIN}/key.pem;
+    ssl_dhparam /certs/dhparam.pem;
+    add_header Access-Control-Allow-Origin *;
+    location / {
+            proxy_pass http://${PROXY};
+            proxy_set_header Host $http_host;
+    proxy_redirect off;
+
+    }
+
+}
+
+## http redirects to https
+server {
+    listen 80;
+    server_name ${DOMAIN};
+    server_tokens off;
+    root /var/www/html;
+    location /.well-known {
+            try_files $uri $uri/ =404;
+    }
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
