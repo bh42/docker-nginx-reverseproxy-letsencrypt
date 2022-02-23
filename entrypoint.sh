@@ -4,7 +4,6 @@
 # https://github.com/Paldom/docker-nginx-letsencrypt-proxy
 # https://raw.githubusercontent.com/wmnnd/nginx-certbot/master/init-letsencrypt.sh
 
-i="1"
 
 # Define a default key length for the certificate, and use the parameter if set
 keyLength=4096
@@ -27,13 +26,12 @@ fi
 
 # Generating self-signed certificates for each host, mandatory for Nginx and LE
 # to execute properly
-while : ; do
-  host="SERVICE_HOST_$i"
-  subj="SERVICE_SUBJ_$i"
-  if [ -z "${!host}" ]; then
-    i=$[$i-1]
-    break
-  fi
+services=$(env | grep SERVICE_HOST_ | cut -d "=" -f1 | sed 's/^SERVICE_HOST_//')
+for service in $services
+do
+  host="SERVICE_HOST_$service"
+  subj="SERVICE_SUBJ_$service"
+
   if [[ ! -d "/certs/${!host}"  || ! -s "/certs/${!host}/cert.pem" ]]; then
     echo ""
     echo "Generating a self-signed certificate for ${!host}..."
@@ -54,7 +52,6 @@ while : ; do
     echo "Self-signed certificate for ${!host} successfully created."
     echo ""
   fi
-  i=$[$i+1]
 done
 
 # Generate the DH params file if it does not exist
@@ -68,6 +65,19 @@ if [ ! -s "/certs/dhparam.pem" ]; then
   echo ""
 fi
 
+# Create nginx configuration
+for service in $services
+do
+  host="SERVICE_HOST_$service"
+  proxy="SERVICE_PROXY_$service"
+  if [ -z "${!proxy}" ]; then
+    continue;
+  fi
+  echo "Generating nginx configuration for \"${!host}\"."
+  FILE_NAME=$(echo $service | tr '[:upper:]' '[:lower:]').conf
+  DOMAIN=${!host} PROXY=${!proxy} envsubst '$PROXY,$DOMAIN' < /tmp/service.conf.template > "/conf/${FILE_NAME}"
+done
+
 # Starting Nginx in daemon mode
 /usr/sbin/nginx
 
@@ -76,13 +86,9 @@ if [ -n "$EMAIL" ]; then
 fi
 
 # Request and install a Let's Encrypt certificate for each host
-i="1"
-while : ; do
-  host="SERVICE_HOST_$i"
-  if [ -z "${!host}" ]; then
-      i=$[$i-1]
-      break
-  fi
+for service in $services
+do
+  host="SERVICE_HOST_$service"
   certSubject=`/usr/bin/openssl x509 -subject -noout -in /certs/${!host}/cert.pem | /usr/bin/cut -c9-999`
   certIssuer=`/usr/bin/openssl x509 -issuer -noout -in /certs/${!host}/cert.pem | /usr/bin/cut -c8-999`
   # Checking whether the existent certificate is self-signed or not
@@ -109,7 +115,6 @@ while : ; do
     echo "Let's Encrypt certificate for ${!host} installed."
     echo ""
   fi
-  i=$[$i+1]
 done
 
 chmod -R 600 /certs
