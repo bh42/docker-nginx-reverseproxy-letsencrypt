@@ -20,7 +20,7 @@ COPY entrypoint.sh /root/.acme.sh/
 
 COPY service.conf.template /tmp
 
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /root/.acme.sh/entrypoint.sh
 
 RUN rm -rf /etc/nginx/conf.d && ln -s /conf /etc/nginx/conf.d
 
