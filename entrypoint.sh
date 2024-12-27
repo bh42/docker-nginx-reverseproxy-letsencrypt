@@ -114,13 +114,15 @@ do
     fi
   fi
   ecc=""
+  eccSuffix=""
   keyLengthTest=`echo "$keyLength" | /usr/bin/cut -c1-2`
   if [ "$keyLengthTest" = "ec" ]; then
     ecc="--ecc"
+    eccSuffix="_ecc"
   fi
   if [[ -e /certs/${!host}/le-ok ]]; then
-    mkdir -p /root/.acme.sh/${!host}/
-    cp /certs/${!host}/csr/* /root/.acme.sh/${!host}/
+    mkdir -p /root/.acme.sh/${!host}$eccSuffix/
+    cp /certs/${!host}/csr/* /root/.acme.sh/${!host}$eccSuffix/
     /root/.acme.sh/acme.sh $test --log --renew -d ${!host} $ecc $server
   fi
   # Replace the existing self-signed certificate with a LE one
@@ -135,7 +137,7 @@ do
                            --reloadcmd '/usr/sbin/nginx -s stop && /bin/sleep 5s && /usr/sbin/nginx'
     touch /certs/${!host}/le-ok
     mkdir -p /certs/${!host}/csr/
-    cp /root/.acme.sh/${!host}/* /certs/${!host}/csr/
+    cp /root/.acme.sh/${!host}$eccSuffix/* /certs/${!host}/csr/
     echo "Let's Encrypt certificate for ${!host} installed."
     echo ""
   fi
