@@ -17,6 +17,12 @@ if [ -n "$DRYRUN" ]; then
   test="--test"
 fi
 
+# Should we use letsencrpyt servers instead of zerossl?
+server=""
+if [ -n "$SERVER" ]; then
+  server="--server letsencrypt"
+fi
+
 # Define a default DH params length, and use the parameter if set
 # 1024 length is set for test purposes only, please set it to 2048 at least!
 dhParamLength=1024
@@ -107,6 +113,11 @@ do
       rm /certs/${!host}/le-ok
     fi
   fi
+  if [[ -e /certs/${!host}/le-ok ]]; then
+    mkdir -p /root/.acme.sh/${!host}/
+    cp /certs/${!host}/csr/* /root/.acme.sh/${!host}/
+    /root/.acme.sh/acme.sh $test --log --renew -d ${!host} $server
+  fi
   ecc=""
   keyLengthTest=`echo "$keyLength" | /usr/bin/cut -c1-2`
   if [ "$keyLengthTest" = "ec" ]; then
@@ -116,13 +127,15 @@ do
   if [ ! -e /certs/${!host}/le-ok ]; then
     echo ""
     echo "Requesting a certificate from Let's Encrypt certificate for ${!host}..."
-    /root/.acme.sh/acme.sh $test --log --issue -w /var/www/html/ -d ${!host} -k $keyLength
+    /root/.acme.sh/acme.sh $test --log --issue -w /var/www/html/ -d ${!host} -k $keyLength $server
     /root/.acme.sh/acme.sh $test --log --installcert $ecc -d ${!host} \
                            --key-file /certs/${!host}/key.pem \
                            --fullchain-file /certs/${!host}/fullchain.pem \
 			   --cert-file /certs/${!host}/cert.pem \
                            --reloadcmd '/usr/sbin/nginx -s stop && /bin/sleep 5s && /usr/sbin/nginx'
     touch /certs/${!host}/le-ok
+    mkdir -p /certs/${!host}/csr/
+    cp /root/.acme.sh/${!host}/* /certs/${!host}/csr/
     echo "Let's Encrypt certificate for ${!host} installed."
     echo ""
   fi
