@@ -113,15 +113,15 @@ do
       rm /certs/${!host}/le-ok
     fi
   fi
-  if [[ -e /certs/${!host}/le-ok ]]; then
-    mkdir -p /root/.acme.sh/${!host}/
-    cp /certs/${!host}/csr/* /root/.acme.sh/${!host}/
-    /root/.acme.sh/acme.sh $test --log --renew -d ${!host} $server
-  fi
   ecc=""
   keyLengthTest=`echo "$keyLength" | /usr/bin/cut -c1-2`
   if [ "$keyLengthTest" = "ec" ]; then
     ecc="--ecc"
+  fi
+  if [[ -e /certs/${!host}/le-ok ]]; then
+    mkdir -p /root/.acme.sh/${!host}/
+    cp /certs/${!host}/csr/* /root/.acme.sh/${!host}/
+    /root/.acme.sh/acme.sh $test --log --renew -d ${!host} $ecc $server
   fi
   # Replace the existing self-signed certificate with a LE one
   if [ ! -e /certs/${!host}/le-ok ]; then
