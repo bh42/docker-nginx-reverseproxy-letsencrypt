@@ -96,13 +96,13 @@ do
   if [[ -e /certs/${!host}/le-ok && "$certSubject" = "$certIssuer" ]]; then
     rm /certs/${!host}/le-ok
   fi
+  ecc=""
+  keyLengthTest=`echo "$keyLength" | /usr/bin/cut -c1-2`
+  if [ "$keyLengthTest" = "ec" ]; then
+    ecc="--ecc"
+  fi
   # Replace the existing self-signed certificate with a LE one
   if [ ! -e /certs/${!host}/le-ok ]; then
-    ecc=""
-    keyLengthTest=`echo "$keyLength" | /usr/bin/cut -c1-2`
-    if [ "$keyLengthTest" = "ec" ]; then
-      ecc="--ecc"
-    fi
     echo ""
     echo "Requesting a certificate from Let's Encrypt certificate for ${!host}..."
     /root/.acme.sh/acme.sh $test --log --issue -w /var/www/html/ -d ${!host} -k $keyLength
@@ -114,6 +114,16 @@ do
     touch /certs/${!host}/le-ok
     echo "Let's Encrypt certificate for ${!host} installed."
     echo ""
+  else
+    EXPIRATION_DATE=$(/usr/bin/openssl x509 -enddate -noout -in "/certs/${!host}/cert.pem" | cut -d= -f2)
+    EXPIRATION_TIMESTAMP=$(date -d "$EXPIRATION_DATE" +%s)
+    # Get the current date and add 30 days (in seconds)
+    CURRENT_TIMESTAMP=$(date +%s)
+    THIRTY_DAYS_LATER=$(( CURRENT_TIMESTAMP + 30 * 24 * 60 * 60 ))
+    # Compare timestamps
+    if [[ $EXPIRATION_TIMESTAMP -lt $THIRTY_DAYS_LATER ]]; then
+      /root/.acme.sh/acme.sh $test --renew -d ${!host} --force $ecc
+    fi
   fi
 done
 
