@@ -129,7 +129,8 @@ do
   if [ ! -e /certs/${!host}/le-ok ]; then
     echo ""
     echo "Requesting a certificate from Let's Encrypt certificate for ${!host}..."
-    /root/.acme.sh/acme.sh $test --log --issue -w /var/www/html/ -d ${!host} -k $keyLength $server
+    # /root/.acme.sh/acme.sh $test --log --issue -w /var/www/html/ -d ${!host} -k $keyLength $server
+    /root/.acme.sh/acme.sh $test --log --issue --nginx -d ${!host} -k $keyLength $server
     /root/.acme.sh/acme.sh $test --log --installcert $ecc -d ${!host} \
                            --key-file /certs/${!host}/key.pem \
                            --fullchain-file /certs/${!host}/fullchain.pem \
