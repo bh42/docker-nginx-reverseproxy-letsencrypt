@@ -96,6 +96,17 @@ do
   if [[ -e /certs/${!host}/le-ok && "$certSubject" = "$certIssuer" ]]; then
     rm /certs/${!host}/le-ok
   fi
+  if [[ -e /certs/${!host}/le-ok ]]; then
+    EXPIRATION_DATE=$(/usr/bin/openssl x509 -enddate -noout -in "/certs/${!host}/cert.pem" | cut -d= -f2)
+    EXPIRATION_TIMESTAMP=$(date -d "$EXPIRATION_DATE" +%s)
+    # Get the current date and add 30 days (in seconds)
+    CURRENT_TIMESTAMP=$(date +%s)
+    THIRTY_DAYS_LATER=$(( CURRENT_TIMESTAMP + 30 * 24 * 60 * 60 ))
+    # Compare timestamps
+    if [[ $EXPIRATION_TIMESTAMP -lt $THIRTY_DAYS_LATER ]]; then
+      rm /certs/${!host}/le-ok
+    fi
+  fi
   ecc=""
   keyLengthTest=`echo "$keyLength" | /usr/bin/cut -c1-2`
   if [ "$keyLengthTest" = "ec" ]; then
@@ -114,16 +125,6 @@ do
     touch /certs/${!host}/le-ok
     echo "Let's Encrypt certificate for ${!host} installed."
     echo ""
-  else
-    EXPIRATION_DATE=$(/usr/bin/openssl x509 -enddate -noout -in "/certs/${!host}/cert.pem" | cut -d= -f2)
-    EXPIRATION_TIMESTAMP=$(date -d "$EXPIRATION_DATE" +%s)
-    # Get the current date and add 30 days (in seconds)
-    CURRENT_TIMESTAMP=$(date +%s)
-    THIRTY_DAYS_LATER=$(( CURRENT_TIMESTAMP + 30 * 24 * 60 * 60 ))
-    # Compare timestamps
-    if [[ $EXPIRATION_TIMESTAMP -lt $THIRTY_DAYS_LATER ]]; then
-      /root/.acme.sh/acme.sh $test --renew -d ${!host} --force $ecc
-    fi
   fi
 done
 
